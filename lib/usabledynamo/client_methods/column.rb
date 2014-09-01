@@ -6,31 +6,31 @@ module UsableDynamo
       @@columns = []
 
       def string_attr(name, options = {})
-        columns << UsableDynamo::Column.new(name: name.to_s, type: "string", set: !! options[:set])
+        columns << UsableDynamo::Column.new(name: name.to_s, type: "string", set: !! options[:set], auto: !! options[:auto])
       end
 
       def integer_attr(name, options = {})
-        columns << UsableDynamo::Column.new(name: name.to_s, type: "integer", set: !! options[:set])
+        columns << UsableDynamo::Column.new(name: name.to_s, type: "integer", set: !! options[:set], auto: !! options[:auto])
       end
 
       def float_attr(name, options = {})
-        columns << UsableDynamo::Column.new(name: name.to_s, type: "float", set: !! options[:set])
+        columns << UsableDynamo::Column.new(name: name.to_s, type: "float", set: !! options[:set], auto: !! options[:auto])
       end
 
       def boolean_attr(name, options = {})
-        columns << UsableDynamo::Column.new(name: name.to_s, type: "boolean", set: !! options[:set])
+        columns << UsableDynamo::Column.new(name: name.to_s, type: "boolean", set: !! options[:set], auto: !! options[:auto])
       end
 
       def date_attr(name, options = {})
-        columns << UsableDynamo::Column.new(name: name.to_s, type: "date", set: !! options[:set])
+        columns << UsableDynamo::Column.new(name: name.to_s, type: "date", set: !! options[:set], auto: !! options[:auto])
       end
 
       def datetime_attr(name, options = {})
-        columns << UsableDynamo::Column.new(name: name.to_s, type: "datetime", set: !! options[:set])
+        columns << UsableDynamo::Column.new(name: name.to_s, type: "datetime", set: !! options[:set], auto: !! options[:auto])
       end
 
       def binary_attr(name, options = {})
-        columns << UsableDynamo::Column.new(name: name.to_s, type: "binary", set: !! options[:set])
+        columns << UsableDynamo::Column.new(name: name.to_s, type: "binary", set: !! options[:set], auto: !! options[:auto])
       end
 
       def timestamps
