@@ -1,13 +1,13 @@
 module UsableDynamo
   module Document
     module ClassMethods
-      cattr_reader   :dynamodb_client,
-                     :after_find_callbacks
+      cattr_accessor :dynamodb_client
+      cattr_reader   :after_find_callbacks
 
       attr_reader    :attributes, :persisted
       attr_accessor  :errors
 
-      @@dynamodb_client       = AWS::DynamoDB::Client.new
+      #@@dynamodb_client       = AWS::DynamoDB::Client.new
       @@after_find_callbacks  = []
 
       # NOTE: we can move these to different modules, but need to make them work first.
@@ -164,7 +164,7 @@ module UsableDynamo
       klass.extend UsableDynamo::ClientMethods::Table
       klass.extend UsableDynamo::ClientMethods::Finder
       # Define the client on runtime to get the correct config.
-      klass.class_variable_set("@@dynamodb_client", AWS::DynamoDB::Client.new)
+      klass.dynamodb_client = AWS::DynamoDB::Client.new
       # Initial table name.
       klass.table_name = klass.to_s.tableize.parameterize.underscore
       klass.module_eval {
