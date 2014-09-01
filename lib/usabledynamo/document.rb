@@ -130,7 +130,14 @@ module UsableDynamo
         if self.new_record? && self.class.column_exists?("id") && attrs["id"].nil?
           # Only :id column can have :auto flag.
           col = self.class.column_for("id")
-          attrs["id"] = { "s" => SecureRandom.uuid } if col.auto
+          if col.auto
+            value = nil
+            loop do
+              value = SecureRandom.uuid
+              break unless self.class.find_by(id: value, "created_at.ge" => DateTime.parse("2000-1-1"))
+            end
+            attrs["id"] = { "s" => value }
+          end
         end
         attrs
       end
