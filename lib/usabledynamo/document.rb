@@ -127,7 +127,11 @@ module UsableDynamo
         now = Time.now.to_i
         attrs["created_at"] = { "n" => now.to_s } if self.new_record? && self.class.column_exists?("created_at") && attrs["created_at"].nil?
         attrs["updated_at"] = { "n" => now.to_s } if self.class.column_exists?("updated_at") && attrs["updated_at"].nil?
-        attrs["id"] = { "s" => SecureRandom.uuid } if self.new_record?
+        if self.new_record? && self.class.column_exists?("id") && attrs["id"].nil?
+          # Only :id column can have :auto flag.
+          col = self.class.column_for("id")
+          attrs["id"] = { "s" => SecureRandom.uuid } if col.auto
+        end
         attrs
       end
 

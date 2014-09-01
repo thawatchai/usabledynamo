@@ -1,12 +1,13 @@
 module UsableDynamo
   class Column
-    attr_reader :name, :type, :native_type, :set
+    attr_reader :name, :type, :native_type, :set, :auto
 
     def initialize(options = {})
       @name        = options[:name].to_s
       @type        = options[:type].to_s
       @set         = !! options[:set]
       @native_type = get_native_type(@type, @set)
+      @auto        = !! options[:auto]
     end
 
     def to_native(value)

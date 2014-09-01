@@ -3,7 +3,7 @@ module UsableDynamo
     module Column
       cattr_reader :columns, :column_names
 
-      @@columns = [UsableDynamo::Column.new(name: "id", type: "string", set: false)]
+      @@columns = []
 
       def string_attr(name, options = {})
         columns << UsableDynamo::Column.new(name: name.to_s, type: "string", set: !! options[:set])
