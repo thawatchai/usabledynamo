@@ -163,6 +163,8 @@ module UsableDynamo
       klass.extend UsableDynamo::ClientMethods::Validation
       klass.extend UsableDynamo::ClientMethods::Table
       klass.extend UsableDynamo::ClientMethods::Finder
+      # Define the client on runtime to get the correct config.
+      klass.class_variable_set("@@dynamodb_client", AWS::DynamoDB::Client.new)
       # Initial table name.
       klass.table_name = klass.to_s.tableize.parameterize.underscore
       klass.module_eval {
