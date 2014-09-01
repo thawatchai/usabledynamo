@@ -1,8 +1,8 @@
-require 'client_methods/column'
-require 'client_methods/finder'
-require 'client_methods/index'
-require 'client_methods/table'
-require 'client_methods/validation'
+require File.expand_path(File.join(File.dirname(__FILE__), 'client_methods', 'column'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'client_methods', 'finder'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'client_methods', 'index'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'client_methods', 'table'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'client_methods', 'validation'))
 
 module UsableDynamo
   module Document
