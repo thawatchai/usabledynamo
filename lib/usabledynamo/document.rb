@@ -93,7 +93,9 @@ module UsableDynamo
       end
 
       def save!(options = {})
-        raise ActiveRecord::RecordNotSaved unless save
+        save.tap do |result|
+          raise ActiveRecord::RecordNotSaved unless result
+        end
       end
 
       def destroy
