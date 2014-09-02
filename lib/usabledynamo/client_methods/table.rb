@@ -12,10 +12,12 @@ module UsableDynamo
 
       def create_table(read_capacity_units = 4, write_capacity_units = 4, options = {})
         key_schema = []
-        add_attribute_definition_with_schema(key_schema, "id", "S", "HASH")
+        hash = self.column_for("id")
+        add_attribute_definition_with_schema(key_schema, "id", hash.native_type.upcase, "HASH")
 
-        if self.column_exists?("created_at")
-          add_attribute_definition_with_schema(key_schema, "created_at", "N", "RANGE")
+        range = self.column_for("created_at")
+        unless range.nil?
+          add_attribute_definition_with_schema(key_schema, "created_at", range.native_type.upcase, "RANGE")
         end
 
         # NOTE: local_secondary_index is based on primary key(s), I guess
