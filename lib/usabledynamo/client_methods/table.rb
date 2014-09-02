@@ -55,9 +55,10 @@ module UsableDynamo
             write_capacity_units: write_capacity_units
           },
           attribute_definitions: attribute_definitions,
-          key_schema: key_schema,
-          global_secondary_indexes: global_secondary_indexes
+          key_schema: key_schema
         }
+
+        opts[:global_secondary_indexes] = global_secondary_indexes unless global_secondary_indexes.blank?
 
         log_info(:create_table, opts)
         dynamodb_client.create_table(opts)
