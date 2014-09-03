@@ -13,8 +13,9 @@ module UsableDynamo
     def to_native(value)
       values = value.is_a?(Array) ? value : [value]
       values = values.map do |val|
-        val = DateTime.parse(val) if val.is_a?(String) && type =~ /^date/
-        val = val.to_i if val.is_a?(Date) || val.is_a?(DateTime) || val.is_a?(Time)
+        # String needs extra checking to convert to correct type.
+        val = string_to_real(val) if val.is_a?(String)
+        val = real_to_native(val)
         native_type[0] == "b" ? AWS::DynamoDB::Binary.new(val) : val.to_s
       end
       native_type.length > 1 ? values : values[0]
@@ -55,6 +56,27 @@ module UsableDynamo
         end
       native += "s" if set
       native
+    end
+
+    def string_to_real(val)
+      if type =~ /^date/
+        DateTime.parse(val)
+      elsif type == "boolean"
+        val == "true"
+      else
+        val
+      end
+    end
+
+    def real_to_native(val)
+      case val
+        when Date, DateTime, Time
+          val.to_i
+        when Boolean
+          val ? 1 : 0
+        else
+          val
+        end
     end
   end
 end
