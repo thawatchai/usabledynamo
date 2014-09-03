@@ -62,7 +62,7 @@ module UsableDynamo
       if type =~ /^date/
         DateTime.parse(val)
       elsif type == "boolean"
-        val == "true"
+        %w(true 1).include?(val)
       else
         val
       end
@@ -72,8 +72,10 @@ module UsableDynamo
       case val
         when Date, DateTime, Time
           val.to_i
-        when Boolean
-          val ? 1 : 0
+        when TrueClass
+          1
+        when FalseClass
+          0
         else
           val
         end
