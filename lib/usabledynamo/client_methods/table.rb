@@ -68,14 +68,13 @@ module UsableDynamo
       alias_method :drop_table, :delete_table
 
       def table_exists?
-        @@table_exists ||
-          begin
-            log_info(:describe_table, table_name: table_name)
-            dynamodb_client.describe_table(table_name: table_name)
-            @@table_exists = true
-          rescue AWS::DynamoDB::Errors::ResourceNotFoundException => e
-            @@table_exists = false
-          end
+        begin
+          log_info(:describe_table, table_name: table_name)
+          dynamodb_client.describe_table(table_name: table_name)
+          @@table_exists = true
+        rescue AWS::DynamoDB::Errors::ResourceNotFoundException => e
+          @@table_exists = false
+        end
       end
 
       def list_tables(options = {})

@@ -179,12 +179,10 @@ module UsableDynamo
       # Table.
       klass.send :cattr_accessor, :table_name
       klass.send :cattr_accessor, :attribute_definitions
-      klass.send :cattr_reader,   :table_exists
       # Index.
       klass.send :cattr_accessor, :indexes
       # Column.
       klass.send :cattr_accessor, :columns
-      klass.send :cattr_reader,   :column_names
       # Validation.
       klass.send :cattr_accessor, :validations
       # Document.

@@ -35,7 +35,7 @@ module UsableDynamo
       end
 
       def column_names
-        @@column_names ||= columns.map { |c| c.name }
+        columns.map { |c| c.name }
       end
 
       def column_for(name)
