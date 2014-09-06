@@ -1,8 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Validation
-      cattr_reader  :validations
-
       @@validations = []
 
       def validates(*args)

@@ -1,9 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Table
-      cattr_accessor :table_name
-      cattr_reader   :table_exists, :attribute_definitions
-
       @@attribute_definitions = []
 
       def set_shard_name(name)

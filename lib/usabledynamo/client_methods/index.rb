@@ -1,8 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Index
-      cattr_reader :indexes
-
       @@indexes = []
 
       def index(cols, options = {})

@@ -1,8 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Column
-      cattr_reader :columns, :column_names
-
       @@columns = []
 
       def string_attr(name, options = {})
