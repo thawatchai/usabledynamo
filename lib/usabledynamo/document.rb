@@ -47,6 +47,11 @@ module UsableDynamo
       @@validations = []
       @@attribute_definitions = []
 
+      # Define the client on runtime to get the correct config.
+      @@dynamodb_client = AWS::DynamoDB::Client.new
+      # Initial table name.
+      @@table_name ||= self.to_s.tableize.parameterize.underscore
+
       def initialize(attrs = {})
         @errors    = UsableDynamo::Errors.new(self)
         @persisted = false
@@ -196,10 +201,10 @@ module UsableDynamo
       klass.module_eval do
         include InstanceMethods
       end
-      # Define the client on runtime to get the correct config.
-      klass.dynamodb_client = AWS::DynamoDB::Client.new
-      # Initial table name.
-      klass.table_name ||= klass.to_s.tableize.parameterize.underscore
+      # # Define the client on runtime to get the correct config.
+      # klass.dynamodb_client = AWS::DynamoDB::Client.new
+      # # Initial table name.
+      # klass.table_name ||= klass.to_s.tableize.parameterize.underscore
     end
   end
 end
