@@ -1,8 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Table
-      @@attribute_definitions = []
-
       def set_shard_name(name)
         @@table_name = name
       end

@@ -1,8 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Index
-      @@indexes = []
-
       def index(cols, options = {})
         indexes << UsableDynamo::Index.new(options.merge(columns: cols))
       end

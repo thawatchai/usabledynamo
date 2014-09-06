@@ -1,8 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Validation
-      @@validations = []
-
       def validates(*args)
         # Not sure if we need this for now.
       end

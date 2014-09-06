@@ -1,8 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Column
-      @@columns = []
-
       def string_attr(name, options = {})
         columns << UsableDynamo::Column.new(name: name.to_s, type: "string", set: !! options[:set], auto: !! options[:auto])
       end

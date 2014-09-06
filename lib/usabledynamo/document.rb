@@ -174,7 +174,7 @@ module UsableDynamo
       klass.extend UsableDynamo::ClientMethods::Table
       klass.extend UsableDynamo::ClientMethods::Finder
       klass.module_eval do
-        # NOTE: We need to define the cattrs here to prevent variable
+        # NOTE: We need to define the cattrs here to prevent attributes
         # =>    sharing among classes.
         # Table.
         cattr_accessor :table_name
@@ -188,6 +188,11 @@ module UsableDynamo
         # Document.
         cattr_accessor :dynamodb_client
         cattr_reader   :after_find_callbacks
+
+        @@indexes = []
+        @@columns = []
+        @@validations = []
+        @@attribute_definitions = []
 
         include InstanceMethods
       end
