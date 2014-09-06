@@ -27,6 +27,26 @@ module UsableDynamo
     end
 
     module InstanceMethods
+      # NOTE: We need to define the cattrs here to prevent attributes
+      # =>    sharing among classes.
+      # Table.
+      cattr_accessor :table_name
+      cattr_reader   :table_exists, :attribute_definitions
+      # Index.
+      cattr_reader :indexes
+      # Column.
+      cattr_reader :columns, :column_names
+      # Validation.
+      cattr_reader  :validations
+      # Document.
+      cattr_accessor :dynamodb_client
+      cattr_reader   :after_find_callbacks
+
+      @@indexes = []
+      @@columns = []
+      @@validations = []
+      @@attribute_definitions = []
+
       def initialize(attrs = {})
         @errors    = UsableDynamo::Errors.new(self)
         @persisted = false
@@ -174,26 +194,6 @@ module UsableDynamo
       klass.extend UsableDynamo::ClientMethods::Table
       klass.extend UsableDynamo::ClientMethods::Finder
       klass.module_eval do
-        # NOTE: We need to define the cattrs here to prevent attributes
-        # =>    sharing among classes.
-        # Table.
-        cattr_accessor :table_name
-        cattr_reader   :table_exists, :attribute_definitions
-        # Index.
-        cattr_reader :indexes
-        # Column.
-        cattr_reader :columns, :column_names
-        # Validation.
-        cattr_reader  :validations
-        # Document.
-        cattr_accessor :dynamodb_client
-        cattr_reader   :after_find_callbacks
-
-        @@indexes = []
-        @@columns = []
-        @@validations = []
-        @@attribute_definitions = []
-
         include InstanceMethods
       end
       # Define the client on runtime to get the correct config.
