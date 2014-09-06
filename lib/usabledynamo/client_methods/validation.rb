@@ -10,7 +10,7 @@ module UsableDynamo
         cols.each do |col|
           column = column_for(col)
           raise "Validation error: column '#{col}' not found" if column.nil?
-          @@validations << UsableDynamo::Validation.new(column, :presence, opts)
+          validations << UsableDynamo::Validation.new(column, :presence, opts)
         end
       end
 

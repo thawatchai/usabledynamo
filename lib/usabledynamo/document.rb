@@ -178,16 +178,18 @@ module UsableDynamo
       # =>    sharing among classes.
       # Table.
       klass.send :cattr_accessor, :table_name
-      klass.send :cattr_reader,   :table_exists, :attribute_definitions
+      klass.send :cattr_accessor, :attribute_definitions
+      klass.send :cattr_reader,   :table_exists
       # Index.
-      klass.send :cattr_accessor,   :indexes
+      klass.send :cattr_accessor, :indexes
       # Column.
-      klass.send :cattr_reader,   :columns, :column_names
+      klass.send :cattr_accessor, :columns
+      klass.send :cattr_reader,   :column_names
       # Validation.
-      klass.send :cattr_reader,   :validations
+      klass.send :cattr_accessor, :validations
       # Document.
       klass.send :cattr_accessor, :dynamodb_client
-      klass.send :cattr_reader,   :after_find_callbacks
+      klass.send :cattr_accessor, :after_find_callbacks
 
       # Define the client on runtime to get the correct config.
       klass.dynamodb_client = AWS::DynamoDB::Client.new
@@ -195,9 +197,9 @@ module UsableDynamo
       klass.table_name ||= klass.to_s.tableize.parameterize.underscore
 
       klass.indexes = []
-      klass.class_variable_set :@@columns, []
-      klass.class_variable_set :@@validations, []
-      klass.class_variable_set :@@attribute_definitions, []
+      klass.columns = []
+      klass.validations = []
+      klass.attribute_definitions = []
 
       klass.module_eval do
         include InstanceMethods
