@@ -180,7 +180,7 @@ module UsableDynamo
       klass.send :cattr_accessor, :table_name
       klass.send :cattr_reader,   :table_exists, :attribute_definitions
       # Index.
-      klass.send :cattr_reader,   :indexes
+      klass.send :cattr_accessor,   :indexes
       # Column.
       klass.send :cattr_reader,   :columns, :column_names
       # Validation.
@@ -194,7 +194,7 @@ module UsableDynamo
       # Initial table name.
       klass.table_name ||= klass.to_s.tableize.parameterize.underscore
 
-      klass.class_variable_set :@@indexes, []
+      klass.indexes = []
       klass.class_variable_set :@@columns, []
       klass.class_variable_set :@@validations, []
       klass.class_variable_set :@@attribute_definitions, []
