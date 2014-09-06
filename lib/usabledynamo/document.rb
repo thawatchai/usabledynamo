@@ -194,17 +194,12 @@ module UsableDynamo
       # Initial table name.
       klass.table_name ||= klass.to_s.tableize.parameterize.underscore
 
+      klass.indexes = []
+      klass.columns = []
+      klass.validations = []
+      klass.attribute_definitions = []
+
       klass.module_eval do
-        @@indexes = []
-        @@columns = []
-        @@validations = []
-        @@attribute_definitions = []
-
-        # # Define the client on runtime to get the correct config.
-        # @@dynamodb_client = AWS::DynamoDB::Client.new
-        # # Initial table name.
-        # @@table_name ||= self.to_s.tableize.parameterize.underscore
-
         include InstanceMethods
       end
     end
