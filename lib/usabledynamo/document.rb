@@ -194,10 +194,10 @@ module UsableDynamo
       # Initial table name.
       klass.table_name ||= klass.to_s.tableize.parameterize.underscore
 
-      klass.indexes = []
-      klass.columns = []
-      klass.validations = []
-      klass.attribute_definitions = []
+      klass.class_variable_set :@@indexes, []
+      klass.class_variable_set :@@columns, []
+      klass.class_variable_set :@@validations, []
+      klass.class_variable_set :@@attribute_definitions, []
 
       klass.module_eval do
         include InstanceMethods
