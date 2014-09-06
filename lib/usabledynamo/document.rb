@@ -173,38 +173,40 @@ module UsableDynamo
       klass.extend UsableDynamo::ClientMethods::Validation
       klass.extend UsableDynamo::ClientMethods::Table
       klass.extend UsableDynamo::ClientMethods::Finder
-      klass.module_eval do
-        # NOTE: We need to define the cattrs here to prevent attributes
-        # =>    sharing among classes.
-        # Table.
-        cattr_accessor :table_name
-        cattr_reader   :table_exists, :attribute_definitions
-        # Index.
-        cattr_reader :indexes
-        # Column.
-        cattr_reader :columns, :column_names
-        # Validation.
-        cattr_reader  :validations
-        # Document.
-        cattr_accessor :dynamodb_client
-        cattr_reader   :after_find_callbacks
 
+      # NOTE: We need to define the cattrs here to prevent attributes
+      # =>    sharing among classes.
+      # Table.
+      klass.send :cattr_accessor, :table_name
+      klass.send :cattr_reader,   :table_exists, :attribute_definitions
+      # Index.
+      klass.send :cattr_reader,   :indexes
+      # Column.
+      klass.send :cattr_reader,   :columns, :column_names
+      # Validation.
+      klass.send :cattr_reader,   :validations
+      # Document.
+      klass.send :cattr_accessor, :dynamodb_client
+      klass.send :cattr_reader,   :after_find_callbacks
+
+      # Define the client on runtime to get the correct config.
+      klass.dynamodb_client = AWS::DynamoDB::Client.new
+      # Initial table name.
+      klass.table_name ||= klass.to_s.tableize.parameterize.underscore
+
+      klass.module_eval do
         @@indexes = []
         @@columns = []
         @@validations = []
         @@attribute_definitions = []
 
-        # Define the client on runtime to get the correct config.
-        @@dynamodb_client = AWS::DynamoDB::Client.new
-        # Initial table name.
-        @@table_name ||= self.to_s.tableize.parameterize.underscore
+        # # Define the client on runtime to get the correct config.
+        # @@dynamodb_client = AWS::DynamoDB::Client.new
+        # # Initial table name.
+        # @@table_name ||= self.to_s.tableize.parameterize.underscore
 
         include InstanceMethods
       end
-      # # Define the client on runtime to get the correct config.
-      # klass.dynamodb_client = AWS::DynamoDB::Client.new
-      # # Initial table name.
-      # klass.table_name ||= klass.to_s.tableize.parameterize.underscore
     end
   end
 end
