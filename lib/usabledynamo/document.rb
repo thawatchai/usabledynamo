@@ -5,7 +5,7 @@ module UsableDynamo
       attr_accessor  :errors
 
       #@@dynamodb_client       = AWS::DynamoDB::Client.new
-      @@after_find_callbacks  = []
+      #@@after_find_callbacks  = []
 
       # NOTE: we can move these to different modules, but need to make them work first.
 
@@ -16,7 +16,7 @@ module UsableDynamo
 
       # Callback methods, the simple way.
       def after_find(method, options = {})
-        @@after_find_callbacks << method
+        after_find_callbacks << method
       end
       
       # Miscellaneous methods.
