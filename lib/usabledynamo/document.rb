@@ -177,17 +177,17 @@ module UsableDynamo
       # NOTE: We need to define the cattrs here to prevent attributes
       # =>    sharing among classes.
       # Table.
-      klass.send :cattr_accessor, :table_name
-      klass.send :cattr_accessor, :attribute_definitions
+      klass.cattr_accessor :table_name
+      klass.cattr_accessor :attribute_definitions
       # Index.
-      klass.send :cattr_accessor, :indexes
+      klass.cattr_accessor :indexes
       # Column.
-      klass.send :cattr_accessor, :columns
+      klass.cattr_accessor :columns
       # Validation.
-      klass.send :cattr_accessor, :validations
+      klass.cattr_accessor :validations
       # Document.
-      klass.send :cattr_accessor, :dynamodb_client
-      klass.send :cattr_accessor, :after_find_callbacks
+      klass.cattr_accessor :dynamodb_client
+      klass.cattr_accessor :after_find_callbacks
 
       # Define the client on runtime to get the correct config.
       klass.dynamodb_client = AWS::DynamoDB::Client.new
@@ -198,6 +198,7 @@ module UsableDynamo
       klass.columns = []
       klass.validations = []
       klass.attribute_definitions = []
+      klass.after_find_callbacks = []
 
       klass.module_eval do
         include InstanceMethods
