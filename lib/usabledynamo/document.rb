@@ -98,7 +98,7 @@ module UsableDynamo
       def destroy
         unless self.id.blank?
           @persisted = false
-          keys = { "id" => { "S" => self.id } }
+          keys = { "id" => { "S" => self.id.to_s } }
           # We need to specify both keys if defined that way.
           if self.class.column_exists?("created_at")
             keys["created_at"] = { "N" => self.created_at.to_i.to_s }
