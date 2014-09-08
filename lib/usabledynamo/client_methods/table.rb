@@ -2,7 +2,7 @@ module UsableDynamo
   module ClientMethods
     module Table
       def set_shard_name(name)
-        @@table_name = name
+        self.table_name = name
       end
 
       def create_table(read_capacity_units = 4, write_capacity_units = 4, options = {})
