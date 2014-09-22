@@ -3,9 +3,9 @@ module UsableDynamo
     attr_reader :type, :validator
 
     def initialize(column, type, options = {})
-      @type = type.to_sym
-      @validator = case type.to_sym
-        when :presence
+      @type = type.to_s
+      @validator = case @type
+        when "presence"
           Presence.new(column, options)
         else
           raise "Validation type is not implemented yet."
@@ -21,7 +21,7 @@ module UsableDynamo
       end
 
       def valid?(record)
-        record.attributes[column.name].present?.tap do |result|
+        record.attributes[column.name.to_s].present?.tap do |result|
           record.errors.add(column.name.to_s, I18n.t("errors.messages.blank")) unless result
         end
       end

@@ -8,13 +8,13 @@ module UsableDynamo
     end
 
     def add(column_name, message)
-      name = column_name.to_sym
+      name = column_name.to_s
       @messages[name] ||= []
       @messages[name] << message
     end
 
     def [](column_name)
-      @messages[column_name.to_sym]
+      @messages[column_name.to_s]
     end
 
     def blank?

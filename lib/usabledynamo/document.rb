@@ -31,13 +31,13 @@ module UsableDynamo
         @errors    = UsableDynamo::Errors.new(self)
         @persisted = false
         # Create table if not exists.
-        self.class.create_table unless self.class.table_exists?
+        #self.class.create_table unless self.class.table_exists?
         # super(attrs)
-        default_attrs = self.class.column_names.inject(HashWithIndifferentAccess.new(id: nil)) do |result, col|
-          result[col.to_sym] = nil
+        default_attrs = self.class.column_names.inject(Hash.new("id" => nil)) do |result, col|
+          result[col.to_s] = nil
           result
         end
-        @attributes = attrs.reverse_merge(default_attrs)
+        @attributes = attrs.stringify_keys.reverse_merge(default_attrs)
         @attributes.keys.each do |attr|
           define_singleton_method attr, lambda { @attributes[attr] }
           define_singleton_method "#{attr}=", lambda { |value| @attributes[attr] = value }
@@ -49,7 +49,7 @@ module UsableDynamo
       end
 
       def attributes=(attrs = {})
-        @attributes.merge!(attrs)
+        @attributes.merge!(attrs.stringify_keys)
       end
 
       def errors
