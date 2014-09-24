@@ -121,7 +121,7 @@ module UsableDynamo
           # NOTE: attributes can't be empty, we only need to save existing value.
           value = self.attributes[column.name]
           # NOTE: Can't use .blank?, sometimes it's causing encoding issue.
-          result[column.name.to_s] = { column.native_type => column.to_native(value) } unless value.blank?
+          result[column.name.to_s] = { column.native_type => column.to_native(value) } unless value.nil? || value == ""
           result
         end
 
