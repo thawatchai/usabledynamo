@@ -37,7 +37,7 @@ module UsableDynamo
           last_evaluated_key = nil
           opts = options.merge(result_set: true)
           loop do
-            opts = options.merge(exclusive_start_key: last_evaluated_key) unless last_evaluated_key.blank?
+            opts = opts.merge(exclusive_start_key: last_evaluated_key) unless last_evaluated_key.blank?
             result_set = finder(conditions, opts)
             preprocess_members(result_set[:member]).each { |x| yield x }
             break if last_evaluated_key == result_set[:last_evaluated_key] || result_set[:last_evaluated_key].blank?
