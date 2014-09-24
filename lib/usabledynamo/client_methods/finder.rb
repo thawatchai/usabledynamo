@@ -32,6 +32,20 @@ module UsableDynamo
         finder(conditions, options.merge(count: true))
       end
 
+      def find_each(conditions = {}, options = {})
+        if block_given?
+          last_evaluated_key = nil
+          opts = options.merge(result_set: true)
+          loop do
+            opts = options.merge(exclusive_start_key: last_evaluated_key) unless last_evaluated_key.blank?
+            result_set = finder(conditions, opts)
+            preprocess_members(result_set[:member]).each { |x| yield x }
+            break if last_evaluated_key == result_set[:last_evaluated_key] || result_set[:last_evaluated_key].blank?
+            last_evaluated_key = result_set[:last_evaluated_key]
+          end
+        end
+      end
+
       private
 
       # Input examples from rails console:
@@ -131,12 +145,7 @@ module UsableDynamo
         elsif options[:result_set]
           result_set
         else
-          result_set[:member].map do |native_attrs|
-            initialize_from_native(native_attrs).tap do |rec|
-              after_find_callbacks.each { |callback| rec.send(callback) }
-              rec.instance_variable_set(:@persisted, true)
-            end
-          end
+          preprocess_members(result_set[:member])
         end
       end
 
@@ -215,6 +224,15 @@ module UsableDynamo
           find_opts[:exclusive_start_key] = last_evaluated_key
         end
         true
+      end
+
+      def preprocess_members(members)
+        members.map do |native_attrs|
+          initialize_from_native(native_attrs).tap do |rec|
+            after_find_callbacks.each { |callback| rec.send(callback) }
+            rec.instance_variable_set(:@persisted, true)
+          end
+        end
       end
     end
   end
