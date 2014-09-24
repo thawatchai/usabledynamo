@@ -120,7 +120,7 @@ module UsableDynamo
         attrs = self.class.columns.inject({}) do |result, column|
           # NOTE: attributes can't be empty, we only need to save existing value.
           value = self.attributes[column.name]
-          result[column.name.to_s] = { column.native_type => column.to_native(value) } unless value.blank?
+          result[column.name.to_s] = { column.native_type => column.to_native(value) } unless value.empty?
           result
         end
 
