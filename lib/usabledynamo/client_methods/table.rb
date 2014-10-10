@@ -82,6 +82,38 @@ module UsableDynamo
         dynamodb_client.list_tables(options)
       end
 
+      def describe_table
+        dynamodb_client.describe_table(table_name: table_name)
+      end
+
+      def update_provisioned_throughputs(read_capacity_units = 4, write_capacity_units = 4)
+        # This automatically changes indexes throughputs as well.
+
+        options = {
+          table_name: table_name,
+          provisioned_throughput: {
+            read_capacity_units: read_capacity_units,
+            write_capacity_units: write_capacity_units
+          }
+        }
+
+        global_secondary_index_updates = indexes.map do |index|
+          {
+            update: {
+              index_name: index.name,
+              provisioned_throughput: {
+                read_capacity_units: read_capacity_units,
+                write_capacity_units: write_capacity_units
+              }
+            }
+          }
+        end
+
+        options.merge!(global_secondary_index_updates: global_secondary_index_updates) unless global_secondary_index_updates.blank?
+
+        dynamodb_client.update_table(options)
+      end
+
       private
 
       def add_attribute_definition_with_schema(schema, name, type, index_type)
