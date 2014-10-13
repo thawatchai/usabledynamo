@@ -14,6 +14,10 @@ module UsableDynamo
         self.new(attrs).tap { |rec| rec.save }
       end
 
+      def create!(attrs = {})
+        self.new(attrs).tap { |rec| rec.save! }
+      end
+
       # Callback methods, the simple way.
       def after_find(method, options = {})
         after_find_callbacks << method
