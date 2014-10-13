@@ -99,6 +99,16 @@ module UsableDynamo
         end
       end
 
+      def update_attributes(attrs = {})
+        self.attributes = attrs
+        self.save
+      end
+
+      def update_attributes!(attrs = {})
+        self.attributes = attrs
+        self.save!
+      end
+
       def destroy
         unless self.id.blank?
           @persisted = false
