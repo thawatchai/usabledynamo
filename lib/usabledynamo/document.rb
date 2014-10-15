@@ -147,10 +147,10 @@ module UsableDynamo
           col = self.class.column_for("id")
           if col.auto
             value = nil
-            conditions = { id: value }
-            conditions["created_at.ge"] = 0 if self.class.column_exists?("created_at")
+            conditions = self.class.column_exists?("created_at") ? { "created_at.ge" => 0 } : {}
             loop do
               value = SecureRandom.uuid
+              conditions["id"] = value
               break unless self.class.find_by(conditions)
             end
             attrs["id"] = { "s" => value }
