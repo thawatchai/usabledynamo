@@ -4,11 +4,6 @@ module UsableDynamo
       attr_reader    :attributes, :persisted
       attr_accessor  :errors
 
-      #@@dynamodb_client       = AWS::DynamoDB::Client.new
-      #@@after_find_callbacks  = []
-
-      # NOTE: we can move these to different modules, but need to make them work first.
-
       # Record manipulation methods.
       def create(attrs = {})
         self.new(attrs).tap { |rec| rec.save }
@@ -20,13 +15,34 @@ module UsableDynamo
 
       # Callback methods, the simple way.
       def after_find(method, options = {})
-        after_find_callbacks << method
+        add_callback(:after_find, method, options)
       end
-      
+
+      def after_save(method, options = {})
+        add_callback(:after_save, method, options)
+      end
+
+      def after_create(method, options = {})
+        add_callback(:after_create, method, options)
+      end
+
+      def after_update(method, options = {})
+        add_callback(:after_update, method, options)
+      end
+
       # Miscellaneous methods.
       def log_info(method, opts)
-        Rails.logger.info "Performing '#{method}' on dynamodb table '#{self.table_name}' with the following options:"
-        Rails.logger.info opts.inspect
+        if defined?(Rails)
+          Rails.logger.info "Performing '#{method}' on dynamodb table '#{self.table_name}' with the following options:"
+          Rails.logger.info opts.inspect
+        end
+      end
+
+      private
+
+      def add_callback(callback_type, method, options = {})
+        callbacks[callback_type] ||= []
+        callbacks[callback_type] << UsableDynamo::Callback.new(method, options)
       end
     end
 
@@ -70,6 +86,10 @@ module UsableDynamo
 
       def valid?
         self.errors.clear
+        self.class.callbacks[:before_validation].to_a.each do |callback|
+          next unless callback.persistence_matched?(self)
+          callback.apply(self)
+        end
         self.class.validations.each do |validation|
           validation.validator.valid?(self)
         end
@@ -78,6 +98,7 @@ module UsableDynamo
 
       def save(options = {})
         if options[:validate] == false || self.valid?
+          execute_before_save_callbacks(@persisted)
           attrs = attributes_to_save
           opts = {
             table_name: self.class.table_name,
@@ -87,7 +108,9 @@ module UsableDynamo
           self.class.log_info(:put_item, opts)
           self.class.dynamodb_client.put_item(opts)
           write_attributes_from_native(attrs)
+          old_persisted = @persisted
           @persisted = true
+          execute_after_save_callbacks(old_persisted)
         else
           false
         end
@@ -182,6 +205,30 @@ module UsableDynamo
           result
         end
       end
+
+      def execute_before_save_callbacks(persisted)
+        self.class.callbacks[:before_save].to_a.each do |callback|
+          callback.apply(self)
+        end
+        self.class.callbacks[:before_create].to_a.each do |callback|
+          callback.apply(self)
+        end unless persisted
+        self.class.callbacks[:before_update].to_a.each do |callback|
+          callback.apply(self)
+        end if persisted
+      end
+
+      def execute_after_save_callbacks(persisted)
+        self.class.callbacks[:after_save].to_a.each do |callback|
+          callback.apply(self)
+        end
+        self.class.callbacks[:after_create].to_a.each do |callback|
+          callback.apply(self)
+        end unless persisted
+        self.class.callbacks[:after_update].to_a.each do |callback|
+          callback.apply(self)
+        end if persisted
+      end
     end
 
     def self.included(klass)
@@ -203,9 +250,10 @@ module UsableDynamo
       klass.cattr_accessor :columns
       # Validation.
       klass.cattr_accessor :validations
+      klass.cattr_accessor :before_validations
       # Document.
       klass.cattr_accessor :dynamodb_client
-      klass.cattr_accessor :after_find_callbacks
+      klass.cattr_accessor :callbacks
 
       # Define the client on runtime to get the correct config.
       klass.dynamodb_client = AWS::DynamoDB::Client.new
@@ -215,8 +263,9 @@ module UsableDynamo
       klass.indexes = []
       klass.columns = []
       klass.validations = []
+      klass.before_validations = []
       klass.attribute_definitions = []
-      klass.after_find_callbacks = []
+      klass.callbacks = {}
 
       klass.module_eval do
         include InstanceMethods

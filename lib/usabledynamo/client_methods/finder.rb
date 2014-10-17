@@ -229,7 +229,7 @@ module UsableDynamo
       def preprocess_members(members)
         members.map do |native_attrs|
           initialize_from_native(native_attrs).tap do |rec|
-            after_find_callbacks.each { |callback| rec.send(callback) }
+            callbacks[:after_find].to_a.each { |callback| callback.apply(rec) }
             rec.instance_variable_set(:@persisted, true)
           end
         end
