@@ -11,14 +11,19 @@ module UsableDynamo
     end
 
     def persistence_matched?(record)
-      @conditions[:on].nil? || @conditions[:on].to_s == "save" ||
-        (@conditions[:on].to_s == "create" && ! record.persisted?) ||
-        (@conditions[:on].to_s == "update" && record.persisted?)      
+      conditions[:on].nil? || conditions[:on].to_s == "save" ||
+        (conditions[:on].to_s == "create" && ! record.persisted?) ||
+        (conditions[:on].to_s == "update" && record.persisted?)      
     end
 
     def conditions_matched?(record)
-      (@conditions[:if].nil? || execute_conditions(record, @conditions[:if])) &&
-      (@conditions[:unless].nil? || ! execute_conditions(record, @conditions[:unless]))
+      (conditions[:if].nil? || execute_conditions(record, conditions[:if])) &&
+      (conditions[:unless].nil? || ! execute_conditions(record, conditions[:unless]))
+    end
+
+    def skip_blank?(value)
+      (conditions[:allow_nil] && value.nil?) ||
+      (conditions[:allow_blank] && value.blank?)
     end
 
     private

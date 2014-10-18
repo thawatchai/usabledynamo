@@ -1,5 +1,7 @@
 module UsableDynamo
   module Document
+    class RecordNotSaved < StandardError; end
+
     module ClassMethods
       attr_reader    :attributes, :persisted
       attr_accessor  :errors
@@ -109,8 +111,9 @@ module UsableDynamo
           self.class.dynamodb_client.put_item(opts)
           write_attributes_from_native(attrs)
           old_persisted = @persisted
-          @persisted = true
-          execute_after_save_callbacks(old_persisted)
+          (@persisted = true).tap do
+            execute_after_save_callbacks(old_persisted)
+          end
         else
           false
         end
@@ -118,7 +121,7 @@ module UsableDynamo
 
       def save!(options = {})
         save.tap do |result|
-          raise ActiveRecord::RecordNotSaved unless result
+          raise UsableDynamo::Document::RecordNotSaved unless result
         end
       end
 

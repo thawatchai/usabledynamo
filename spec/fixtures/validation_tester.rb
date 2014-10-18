@@ -18,11 +18,15 @@ class ValidationTester
 
   timestamps
 
+  index [:email, :created_at]
+  index [:first_name, :last_name]
+
   validates_presence_of :first_name, :last_name, :date_of_birth
   validates_presence_of :weight, :if => Proc.new { |x| x.age && x.age > 10 }
   validates_presence_of :height, :unless => Proc.new { |x| x.age && x.age < 20 }
 
-  # validates_uniqueness_of :email
+  validates_uniqueness_of :email, range: { "created_at.ge" => 0 }, allow_blank: true
+  validates_uniqueness_of :last_name, scope: :first_name, allow_nil: true, :if => lambda { |x| x.first_name }
 
   validate :check_unusual_weight, :on => :create, :if => :weight
   validate :check_unusual_height, :on => :update, :unless => lambda { |x| x.height.nil? }

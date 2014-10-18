@@ -17,15 +17,23 @@ module UsableDynamo
       end
 
       def validates_presence_of(*args)
+        parse_and_assign_validations(:presence, *args)
+      end
+
+      def validates_uniqueness_of(*args)
+        parse_and_assign_validations(:uniqueness, *args)
+      end
+
+      private
+
+      def parse_and_assign_validations(type, *args)
         cols, opts = parse_validation(*args)
         cols.each do |col|
           column = column_for(col)
           raise "Validation error: column '#{col}' not found" if column.nil?
-          validations << UsableDynamo::Validation.new(column, :presence, opts)
+          validations << UsableDynamo::Validation.new(column, type, opts)
         end
       end
-
-      private
 
       def parse_validation(*args)
         columns, options = [], {}

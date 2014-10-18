@@ -25,9 +25,11 @@ module UsableDynamo
       end
 
       def valid?(record)
-        if @options.matched?(record)
-          record.attributes[column.name.to_s].present?.tap do |result|
-            record.errors.add(column.name.to_s, I18n.t("errors.messages.blank")) unless result
+        col_name = column.name.to_s
+        value = record.attributes[col_name]
+        if ! options.skip_blank?(value) && options.matched?(record)
+          value.present?.tap do |result|
+            record.errors.add(col_name, I18n.t("errors.messages.blank")) unless result
           end
         end
       end
@@ -42,8 +44,19 @@ module UsableDynamo
       end
 
       def valid?(record)
-        if @options.matched?(record)
-          col = record.class.column_for(@column)
+        col_name = column.name.to_s
+        value = record.attributes[col_name]
+        if ! options.skip_blank?(value) && options.matched?(record)
+          conditions = options.conditions[:range] || {}
+          scope = options.conditions[:scope]
+          conditions[scope.to_s] = record.attributes[scope.to_s] unless scope.nil?
+          conditions[col_name] = record.attributes[col_name]
+
+          results = record.class.find_all_by(conditions)
+
+          if results.detect { |rec| rec.id != record.id }
+            record.errors.add(col_name, I18n.t("errors.messages.taken"))
+          end
         end
       end
     end
@@ -57,9 +70,7 @@ module UsableDynamo
       end
 
       def valid?(record)
-        if @options.matched?(record)
-          record.send(@method)
-        end
+        record.send(method) if options.matched?(record)
       end
     end
   end

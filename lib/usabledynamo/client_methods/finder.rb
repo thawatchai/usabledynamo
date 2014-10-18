@@ -137,8 +137,10 @@ module UsableDynamo
           end
         end
 
-        Rails.logger.info "Result:"
-        Rails.logger.info result_set.inspect
+        if defined?(Rails)
+          Rails.logger.info "Result:"
+          Rails.logger.info result_set.inspect
+        end
 
         if options[:count]
           result_set[:count]

@@ -14,7 +14,7 @@ module UsableDynamo
     end
 
     def [](column_name)
-      @messages[column_name.to_s]
+      @messages[column_name.to_s] ||= []
     end
 
     def blank?
