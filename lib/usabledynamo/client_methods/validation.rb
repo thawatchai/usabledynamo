@@ -1,10 +1,6 @@
 module UsableDynamo
   module ClientMethods
     module Validation
-      def before_validation(method, options = {})
-        add_callback(:before_validation, method, options)
-      end
-
       def validates(*args)
         # Not sure if we need this for now.
       end

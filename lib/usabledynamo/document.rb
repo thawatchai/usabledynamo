@@ -15,36 +15,12 @@ module UsableDynamo
         self.new(attrs).tap { |rec| rec.save! }
       end
 
-      # Callback methods, the simple way.
-      def after_find(method, options = {})
-        add_callback(:after_find, method, options)
-      end
-
-      def after_save(method, options = {})
-        add_callback(:after_save, method, options)
-      end
-
-      def after_create(method, options = {})
-        add_callback(:after_create, method, options)
-      end
-
-      def after_update(method, options = {})
-        add_callback(:after_update, method, options)
-      end
-
       # Miscellaneous methods.
       def log_info(method, opts)
         if defined?(Rails)
           Rails.logger.info "Performing '#{method}' on dynamodb table '#{self.table_name}' with the following options:"
           Rails.logger.info opts.inspect
         end
-      end
-
-      private
-
-      def add_callback(callback_type, method, options = {})
-        callbacks[callback_type] ||= []
-        callbacks[callback_type] << UsableDynamo::Callback.new(method, options)
       end
     end
 
@@ -95,12 +71,17 @@ module UsableDynamo
         self.class.validations.each do |validation|
           validation.validator.valid?(self)
         end
-        self.errors.blank?
+        self.errors.blank?.tap do |result|
+          self.class.callbacks[:after_validation].to_a.each do |callback|
+            next unless callback.persistence_matched?(self)
+            callback.apply(self)
+          end if result
+        end
       end
 
       def save(options = {})
-        if options[:validate] == false || self.valid?
-          execute_before_save_callbacks(@persisted)
+        if (options[:validate] == false || self.valid?) &&
+           execute_before_save_callbacks(@persisted)
           attrs = attributes_to_save
           opts = {
             table_name: self.class.table_name,
@@ -136,7 +117,7 @@ module UsableDynamo
       end
 
       def destroy
-        unless self.id.blank?
+        if ! self.id.blank? && execute_before_destroy_callbacks
           @persisted = false
           id_column = self.class.column_for("id")
           keys = { "id" => { id_column.native_type => self.id.to_s } }
@@ -151,6 +132,7 @@ module UsableDynamo
           }
           self.class.log_info(:delete_item, opts)
           self.class.dynamodb_client.delete_item(opts)
+          execute_after_destroy_callbacks
         end
       end
 
@@ -211,26 +193,42 @@ module UsableDynamo
 
       def execute_before_save_callbacks(persisted)
         self.class.callbacks[:before_save].to_a.each do |callback|
-          callback.apply(self)
+          return false if callback.apply(self) == false
         end
         self.class.callbacks[:before_create].to_a.each do |callback|
-          callback.apply(self)
+          return false if callback.apply(self) == false
         end unless persisted
         self.class.callbacks[:before_update].to_a.each do |callback|
-          callback.apply(self)
+          return false if callback.apply(self) == false
         end if persisted
+        true
       end
 
       def execute_after_save_callbacks(persisted)
-        self.class.callbacks[:after_save].to_a.each do |callback|
-          callback.apply(self)
-        end
         self.class.callbacks[:after_create].to_a.each do |callback|
-          callback.apply(self)
+          return false if callback.apply(self) == false
         end unless persisted
         self.class.callbacks[:after_update].to_a.each do |callback|
-          callback.apply(self)
+          return false if callback.apply(self) == false
         end if persisted
+        self.class.callbacks[:after_save].to_a.each do |callback|
+          return false if callback.apply(self) == false
+        end
+        true
+      end
+
+      def execute_before_destroy_callbacks
+        self.class.callbacks[:before_destroy].to_a.each do |callback|
+          return false if callback.apply(self) == false
+        end
+        true
+      end
+
+      def execute_after_destroy_callbacks
+        self.class.callbacks[:after_destroy].to_a.each do |callback|
+          return false if callback.apply(self) == false
+        end
+        true
       end
     end
 
@@ -241,6 +239,7 @@ module UsableDynamo
       klass.extend UsableDynamo::ClientMethods::Validation
       klass.extend UsableDynamo::ClientMethods::Table
       klass.extend UsableDynamo::ClientMethods::Finder
+      klass.extend UsableDynamo::ClientMethods::Callback
 
       # NOTE: We need to define the cattrs here to prevent attributes
       # =>    sharing among classes.

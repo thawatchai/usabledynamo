@@ -10,4 +10,5 @@ require 'usabledynamo/client_methods/finder'
 require 'usabledynamo/client_methods/index'
 require 'usabledynamo/client_methods/table'
 require 'usabledynamo/client_methods/validation'
+require 'usabledynamo/client_methods/callback'
 
