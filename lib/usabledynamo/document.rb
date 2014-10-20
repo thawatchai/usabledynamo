@@ -93,6 +93,7 @@ module UsableDynamo
           write_attributes_from_native(attrs)
           old_persisted = @persisted
           (@persisted = true).tap do
+            # We can't cancel an update because there's no transaction.
             execute_after_save_callbacks(old_persisted)
           end
         else
@@ -133,6 +134,9 @@ module UsableDynamo
           self.class.log_info(:delete_item, opts)
           self.class.dynamodb_client.delete_item(opts)
           execute_after_destroy_callbacks
+          true    # We can't cancel a destroy because there's no transaction.
+        else
+          false
         end
       end
 

@@ -106,7 +106,7 @@ describe UsableDynamo::Callback, "document test" do
       before(:each) do
         record.save!
         record.first_name = nil
-        record.email = nil
+        record.email      = nil
       end
 
       it "should not execute the before validation on :create" do
@@ -178,7 +178,7 @@ describe UsableDynamo::Callback, "document test" do
     end
   end
 
-  describe "before and after callbacks on happy path" do
+  describe "before and after callbacks happy path" do
     it "should save the record" do
       expect(record.save).to eq(true)
       expect(record).to be_persisted
@@ -207,7 +207,7 @@ describe UsableDynamo::Callback, "document test" do
     end
   end
 
-  describe "before save callbacks" do
+  describe "before save callbacks' conditions" do
     before(:each) do
       record.avatar = "cope"
     end
@@ -238,7 +238,7 @@ describe UsableDynamo::Callback, "document test" do
     end
   end
 
-  describe "before create callbacks" do
+  describe "before create callbacks' conditions" do
     before(:each) do
       record.avatar = "nope"
     end
@@ -269,7 +269,7 @@ describe UsableDynamo::Callback, "document test" do
     end
   end
 
-  describe "before update callbacks" do
+  describe "before update callbacks' conditions" do
     before(:each) do
       record.avatar = "dope"
     end
@@ -293,11 +293,11 @@ describe UsableDynamo::Callback, "document test" do
 
       describe "and condition failed in before_update" do
         before(:each) do
-          # Reset the attributes.
-          record.avatar = "dope"
+          # Reset to test the callback behavior.
+          record.avatar        = "dope"
           record.date_of_birth = nil
-          record.longitude = nil
-          record.latitude = nil
+          record.longitude     = nil
+          record.latitude      = nil
         end
 
         it "should not save the record" do
@@ -338,13 +338,120 @@ describe UsableDynamo::Callback, "document test" do
     end
 
     it "should not assign the latitude" do
+      record.save!
       expect(record.latitude).to be_nil
     end
 
     it "should not assign the longitude" do
+      record.save!
+      expect(record.longitude).to eq(777)
+    end
+  end
+
+  describe "after create callbacks' conditions" do
+    before(:each) do
+      record.avatar = "pope"
+    end
+
+    it "should save the record" do
+      expect(record.save).to eq(true)
+      expect(record).to be_persisted
+    end
+
+    it "should not assign the latitude" do
+      record.save!
+      expect(record.latitude).to be_nil
+    end
+
+    it "should not assign the longitude" do
+      record.save!
       expect(record.longitude).to be_nil
+    end
+  end
+
+  describe "after update callbacks' conditions" do
+    before(:each) do
+      record.save!
+      # Reset to test the callback behavior.
+      record.latitude  = nil
+      record.longitude = nil
+      record.avatar    = "hope"
+    end
+
+    it "should save the record" do
+      expect(record.save).to eq(true)
+      expect(record).to be_persisted
+    end
+
+    it "should not assign the latitude" do
+      record.save!
+      expect(record.latitude).to be_nil
+    end
+
+    it "should not assign the longitude" do
+      record.save!
+      expect(record.longitude).to be_nil
+    end    
+  end
+
+  describe "before destroy callbacks' conditions" do
+    before(:each) do
+      record.save!
+      record.height = nil
+      record.age    = nil
+    end
+
+    it "should be destroyed correctly on happy path" do
+      expect(record.destroy).to eq(true)
+      expect(record).not_to be_persisted
+    end
+
+    it "assign the attributes" do
+      record.destroy
+      expect(record.height).to eq(70)
+      expect(record.age).to eq(999)
+    end
+
+    describe "when before destroy returns false" do
+      before(:each) do
+        record.avatar = "back"
+        record.height = nil
+        record.age    = nil
+      end
+
+      it "should not destroy the record" do
+        expect(record.destroy).to eq(false)
+        expect(record).to be_persisted
+      end
+
+      it "should not assign the attributes" do
+        record.destroy
+        expect(record.height).to be_nil
+        expect(record.age).to be_nil
+      end
+    end
+
+    describe "when after destroy returns false" do
+      before(:each) do
+        record.avatar = "sack"
+        record.height = nil
+        record.age    = nil
+      end
+
+      it "should destroy the record" do
+        expect(record.destroy).to eq(true)
+        expect(record).not_to be_persisted
+      end
+
+      it "should not assign the attributes in after destroy" do
+        record.destroy
+        expect(record.height).to eq(70)
+        expect(record.age).to be_nil
+      end
     end
 
   end
+
+
 
 end

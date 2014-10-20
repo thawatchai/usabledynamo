@@ -44,8 +44,8 @@ class CallbackTester
   after_create :after_create_action
   after_update :after_update_action
 
-  # before_destroy :before_destroy_action
-  # after_destroy  :after_destroy_action
+  before_destroy :before_destroy_action
+  after_destroy  :after_destroy_action
 
   private
 
@@ -103,8 +103,17 @@ class CallbackTester
   end
 
   def after_update_action
-    return false if self.avatar == "gope"
+    return false if self.avatar == "hope"
     self.longitude = 888
   end
 
+  def before_destroy_action
+    return false if self.avatar == "back"
+    self.height = 70
+  end
+
+  def after_destroy_action
+    return false if self.avatar == "sack"
+    self.age = 999
+  end
 end

@@ -33,9 +33,9 @@ module UsableDynamo
         when "boolean"
           %w(true 1).include?(value)
         when "date"
-          Time.at(value.to_i).to_date
+          Time.at(value.to_i).utc.to_date
         when "datetime"
-          Time.at(value.to_i).to_datetime
+          Time.at(value.to_i).utc.to_datetime
         else
           value
         end
