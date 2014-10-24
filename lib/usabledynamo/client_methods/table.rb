@@ -86,7 +86,7 @@ module UsableDynamo
         dynamodb_client.describe_table(table_name: table_name)
       end
 
-      def update_provisioned_throughputs(read_capacity_units = 4, write_capacity_units = 4)
+      def update_provisioned_throughputs(read_capacity_units = 4, write_capacity_units = 4, opts = {})
         # This automatically changes indexes throughputs as well.
 
         options = {
@@ -97,13 +97,21 @@ module UsableDynamo
           }
         }
 
+        index_options = opts.stringify_keys["global_secondary_indexes"].try(:stringify_keys) || {}
+
         global_secondary_index_updates = indexes.map do |index|
+          index_read_capacity_units, index_write_capacity_units = if index_options[index.name]
+            units = index_options[index.name].stringify_keys
+            [units["read_capacity_units"], units["write_capacity_units"]]
+          else
+            [read_capacity_units, write_capacity_units]
+          end
           {
             update: {
               index_name: index.name,
               provisioned_throughput: {
-                read_capacity_units: read_capacity_units,
-                write_capacity_units: write_capacity_units
+                read_capacity_units:  index_read_capacity_units,
+                write_capacity_units: index_write_capacity_units
               }
             }
           }
