@@ -102,7 +102,8 @@ module UsableDynamo
         global_secondary_index_updates = indexes.map do |index|
           index_read_capacity_units, index_write_capacity_units = if index_options[index.name]
             units = index_options[index.name].stringify_keys
-            [units["read_capacity_units"], units["write_capacity_units"]]
+            [units["read_capacity_units"] || units["read"] || read_capacity_units,
+             units["write_capacity_units"] || units["write"] || write_capacity_units]
           else
             [read_capacity_units, write_capacity_units]
           end
