@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "usabledynamo"
-  s.version     = "0.0.1"
+  s.version     = "0.0.2"
   s.platform    = Gem::Platform::RUBY  
   s.summary     = "ActiveRecord like AWS-DynamoDB Client using API version 2012-08-10."
   s.email       = "support@usablelabs.com"

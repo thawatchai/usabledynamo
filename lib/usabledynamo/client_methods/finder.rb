@@ -74,8 +74,9 @@ module UsableDynamo
       #
       def finder(conditions, options = {})
         find_opts = { table_name: self.table_name }
-        # NOTE: The limit only works correctly when the 
+        # NOTE: The limit only works correctly when the index keys are all specified.
         find_opts[:limit] = options[:limit] unless options[:limit].blank?
+        find_opts[:exclusive_start_key] = options[:exclusive_start_key] unless options[:exclusive_start_key].blank?
 
         unless options[:select].blank?
           attrs = if options[:select].is_a?(Array)
