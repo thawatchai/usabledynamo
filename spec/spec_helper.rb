@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'active_support/all'
-require 'aws/dynamo_db'
+require 'aws-sdk'
+# require 'aws-sdk-core/dynamodb'
 require 'spork'
 require 'usabledynamo'
 #uncomment the following line to use spork with the debugger
@@ -14,12 +15,15 @@ Spork.prefork do
   # This file is copied to spec/ when you run 'rails generate rspec:install'
   ENV["RAILS_ENV"] ||= 'test'
 
-  AWS.config(:dynamo_db => { :api_version => '2012-08-10' })
-  AWS.config(:use_ssl => false,
-             :dynamo_db_endpoint => 'localhost',
-             :dynamo_db_port => 8000,
-             :access_key_id => "xxx",
-             :secret_access_key => "xxx")
+  # AWS.config(:dynamo_db => { :api_version => '2012-08-10' })
+  # AWS.config(:use_ssl => false,
+  #            :dynamo_db_endpoint => 'localhost',
+  #            :dynamo_db_port => 8000,
+  #            :access_key_id => "xxx",
+  #            :secret_access_key => "xxx")
+  Aws.config[:credentials] = Aws::Credentials.new("xxx", "xxx")
+  Aws.config[:region] = ENV["S3_REGION"] || 'us-east-1'
+  Aws.config[:endpoint] = "http://localhost:8000"
 
   I18n.enforce_available_locales = false
 

@@ -39,7 +39,7 @@ module UsableDynamo
           loop do
             opts = opts.merge(exclusive_start_key: last_evaluated_key) unless last_evaluated_key.blank?
             result_set = finder(conditions, opts)
-            preprocess_members(result_set[:member]).each { |x| yield x }
+            preprocess_members(result_set[:items]).each { |x| yield x }
             break if last_evaluated_key == result_set[:last_evaluated_key] || result_set[:last_evaluated_key].blank?
             last_evaluated_key = result_set[:last_evaluated_key]
           end
@@ -96,7 +96,7 @@ module UsableDynamo
         unless options[:start_with].blank?
           find_opts[:exclusive_start_key] = options[:start_with].inject({}) do |result, (attr, value)|
             column = column_for(attr)
-            result[column.name] = { column.native_type => value }
+            result[column.name] = value
             result
           end
         end
@@ -113,7 +113,7 @@ module UsableDynamo
             log_info(:scan, find_opts)
             dynamodb_client.scan(find_opts)
           else
-            { count: 0, member: [] }
+            { count: 0, items: [] }
           end
         else
           # Use .query method.
@@ -134,7 +134,7 @@ module UsableDynamo
             log_info(:query, find_opts)
             dynamodb_client.query(find_opts)
           else
-            { count: 0, member: [] }
+            { count: 0, items: [] }
           end
         end
 
@@ -148,7 +148,7 @@ module UsableDynamo
         elsif options[:result_set]
           result_set
         else
-          preprocess_members(result_set[:member])
+          preprocess_members(result_set[:items])
         end
       end
 
@@ -187,17 +187,17 @@ module UsableDynamo
 
           natives = case operator
           when "BETWEEN"
-            [{ col.native_type => col.to_native(value[0]) },
-             { col.native_type => col.to_native(value[1]) }]
+            [col.to_native(value[0]),
+             col.to_native(value[1])]
           when "IN"
-            value.map { |val| { col.native_type => col.to_native(val) } }
+            value.map { |val| col.to_native(val) }
           else
-            [{ col.native_type => col.to_native(value) }]
+            [col.to_native(value)]
           end
 
           result[key] = {
-            "attribute_value_list" => natives,
-            "comparison_operator"  => operator
+            attribute_value_list: natives,
+            comparison_operator: operator
           }
           result
         end

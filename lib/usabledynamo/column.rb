@@ -16,7 +16,8 @@ module UsableDynamo
         # String needs extra checking to convert to correct type.
         val = string_to_real(val) if val.is_a?(String)
         val = real_to_native(val)
-        native_type[0] == "b" ? AWS::DynamoDB::Binary.new(val) : val.to_s
+        # No more binary data type in v2?
+        # native_type[0] == "b" ? Aws::DynamoDB::Binary.new(val) : val.to_s
       end
       native_type.length > 1 ? values : values[0]
     end
@@ -31,7 +32,8 @@ module UsableDynamo
         when "float"
           value.to_f
         when "boolean"
-          %w(true 1).include?(value)
+          value == "true" || value.to_i == 1
+          # %w(true 1).include?(value)
         when "date"
           Time.at(value.to_i).utc.to_date
         when "datetime"

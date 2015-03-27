@@ -205,6 +205,17 @@ describe UsableDynamo::Callback, "document test" do
         expect(record.date_of_birth).to eq(DateTime.parse("1999-01-01"))
       end
     end
+
+    describe "updating boolean" do
+      before(:each) do
+        record.disabled = false
+      end
+
+      it "should set the correct value because of before_save callback" do
+        record.save!
+        expect(record.disabled).to eq(true)
+      end
+    end
   end
 
   describe "before save callbacks' conditions" do
@@ -451,7 +462,4 @@ describe UsableDynamo::Callback, "document test" do
     end
 
   end
-
-
-
 end

@@ -121,10 +121,10 @@ module UsableDynamo
         if ! self.id.blank? && execute_before_destroy_callbacks
           @persisted = false
           id_column = self.class.column_for("id")
-          keys = { "id" => { id_column.native_type => self.id.to_s } }
+          keys = { "id" => self.id.to_s }
           # We need to specify both keys if defined that way.
           if self.class.column_exists?("created_at")
-            keys["created_at"] = { "N" => self.created_at.to_i.to_s }
+            keys["created_at"] = self.created_at.to_i
           end
 
           opts = {
@@ -147,13 +147,13 @@ module UsableDynamo
           # NOTE: attributes can't be empty, we only need to save existing value.
           value = self.attributes[column.name]
           # NOTE: Can't use .blank?, sometimes it's causing encoding issue.
-          result[column.name.to_s] = { column.native_type => column.to_native(value) } unless value.nil? || value == ""
+          result[column.name.to_s] = column.to_native(value) unless value.nil? || value == ""
           result
         end
 
         now = Time.now.to_i
-        attrs["created_at"] = { "n" => now.to_s } if self.new_record? && self.class.column_exists?("created_at") && attrs["created_at"].nil?
-        attrs["updated_at"] = { "n" => now.to_s } if self.class.column_exists?("updated_at") && attrs["updated_at"].nil?
+        attrs["created_at"] = now if self.new_record? && self.class.column_exists?("created_at") && attrs["created_at"].nil?
+        attrs["updated_at"] = now if self.class.column_exists?("updated_at") && attrs["updated_at"].nil?
         if self.new_record? && self.class.column_exists?("id") && attrs["id"].nil?
           # Only :id column can have :auto flag.
           col = self.class.column_for("id")
@@ -165,7 +165,7 @@ module UsableDynamo
               conditions["id"] = value
               break unless self.class.find_by(conditions)
             end
-            attrs["id"] = { "s" => value }
+            attrs["id"] = value
           end
         end
         attrs
@@ -189,7 +189,7 @@ module UsableDynamo
         #   "content_type"=>{:s=>"Course::Assignment"}, "target_id"=>{:n=>"4"}}]
         @attributes = self.class.columns.inject({}) do |result, column|
           result[column.name] = unless native_attrs[column.name].nil?
-            column.to_real(native_attrs[column.name].values[0])
+            column.to_real(native_attrs[column.name])
           end
           result
         end
@@ -262,7 +262,7 @@ module UsableDynamo
       klass.cattr_accessor :callbacks
 
       # Define the client on runtime to get the correct config.
-      klass.dynamodb_client = AWS::DynamoDB::Client.new
+      klass.dynamodb_client = Aws::DynamoDB::Client.new
       # Initial table name.
       klass.table_name ||= klass.to_s.tableize.parameterize.underscore
 

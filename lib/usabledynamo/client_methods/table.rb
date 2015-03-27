@@ -72,7 +72,7 @@ module UsableDynamo
           log_info(:describe_table, table_name: table_name)
           dynamodb_client.describe_table(table_name: table_name)
           @@table_exists = true
-        rescue AWS::DynamoDB::Errors::ResourceNotFoundException => e
+        rescue Aws::DynamoDB::Errors::ResourceNotFoundException => e
           @@table_exists = false
         end
       end
